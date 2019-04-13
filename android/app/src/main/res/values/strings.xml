@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MedicalPrescription</string>
+    <string name="facebook_app_id">349542195688486</string>
+    <string name="fb_login_protocol_scheme">fb349542195688486</string>
 </resources>
