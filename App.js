@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Button} from 'react-native';
 import LoginComponent from './src/components/Login';
-import { LoginManager, AccessToken } from "react-native-fbsdk";
+import { LoginManager, AccessToken, ShareDialog } from "react-native-fbsdk";
 
 export default class App extends Component {
   customLoginHandler = () => {
@@ -30,23 +30,58 @@ export default class App extends Component {
   }
   
   testHandler = () => {
-    console.log( "test" );
+    const shareLinkContent = {
+      contentType: 'link',
+      contentUrl: "https://facebook.com",
+      contentDescription: 'Wow, check out this great site!',
+    };
+
+    this.shareLinkWithShareDialog( shareLinkContent );
   };
+
+  shareLinkWithShareDialog( shareLinkContent ) {
+    //var tmp = this;
+    ShareDialog.canShow( shareLinkContent ).then(
+      function(canShow) {
+        if (canShow) {
+          return ShareDialog.show( shareLinkContent);
+        }
+      }
+    ).then(
+      function(result) {
+        if (result.isCancelled) {
+          console.log('Share cancelled');
+        } else {
+          console.log('Share success with postId: '
+            + result.postId);
+        }
+      },
+      function(error) {
+        console.log('Share fail with error: ' + error);
+      }
+    );
+  }
   
   render() {
     return (
       <View style={styles.container}>
-        <Button
-          style = { styles.btn }
-          title = "Login using Facebook"
-          onPress = { this.customLoginHandler }
-        />
+        <View  style = { styles.btnContainer }>
+          <LoginComponent />
+        </View>
 
-        <Button
-          style = { styles.btn }
-          title = "test"
-          onPress = { this.testHandler }
-        />
+        <View style = { styles.btnContainer }>
+          <Button
+            title = "Login using Facebook"
+            onPress = { this.customLoginHandler }
+          />
+        </View>
+
+        <View style = { styles.btnContainer }>
+          <Button
+            title = "test"
+            onPress = { this.testHandler }
+          />
+        </View>
       </View>
     );
   }
@@ -59,7 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  btn: {
+  btnContainer: {
     margin: 16
   }
 });
