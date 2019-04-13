@@ -1,11 +1,22 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Button} from 'react-native';
 import LoginComponent from './src/components/Login';
-import { LoginManager, AccessToken, ShareDialog, ShareApi } from "react-native-fbsdk";
+import { LoginManager, AccessToken, ShareDialog } from "react-native-fbsdk";
+
+const pageId = "381560922443107";
 
 export default class App extends Component {
+  state = {
+    userToken: null,
+    pageToken: null
+  };
+
+
+
   customLoginHandler = () => {
-    LoginManager.logInWithReadPermissions(["public_profile"]).then(
+    let that = this;
+
+    LoginManager.logInWithPublishPermissions(["manage_pages", "publish_pages"]).then(
       function(result) {
         console.log( "result: ", result );
         if (result.isCancelled) {
@@ -18,7 +29,9 @@ export default class App extends Component {
 
           AccessToken.getCurrentAccessToken().then(
             (data) => {
-              console.log(data.accessToken.toString())
+              let token = data.accessToken.toString();
+              that.getPageToken( token );
+              that.storeUserToken( token );
             }
           )
         }
@@ -29,16 +42,76 @@ export default class App extends Component {
     );
   }
   
-  testHandler = () => {
-    const photoUrl = "https://mediakey1.ef.com/blog/wp-content/uploads/2017/03/Sea-or-see-12-English-words-that-can-trip-you-up_square-568x400.jpg";
 
-    const sharePhotoContent = {
-      contentType: 'photo',
-      photos: [{ imageUrl: photoUrl }]
-    };
 
-   this.shareLinkWithShareDialog( sharePhotoContent );
+  getPageToken = ( userToken ) => {
+    fetch( "https://graph.facebook.com/" + pageId + "?fields=access_token&access_token=" + userToken )
+        .then( res => res.json() )
+        .then( response => {
+          console.log( "got success: ", response );
+          this.storePageToken( response.access_token.toString() );
+        } ).catch( ( reason ) => {
+          console.log( "failur: ", reason );
+        } );
+  }
+
+
+
+  storeUserToken = token => {
+    this.setState( {
+      userToken: token
+    } );
+  }
+
+
+
+  storePageToken = token => {
+    this.setState( {
+      pageToken: token
+    } );
+  }
+
+
+
+  postHandler = () => {
+    console.log( typeof this.state.pageToken );
+    fetch( "https://graph.facebook.com/v3.2/" + pageId + "/feed" + "?message=fromApp&access_token=" + this.state.pageToken, {
+      method: "POST"
+    } )
+    .then( res => {
+      console.log( "res before parsing: ", res );
+      if ( res.ok ) {
+        return res.json()
+      }
+      else {
+        throw( new Error() );
+      }
+    } )
+    .then( response => {
+      console.log( "success response: ", response );
+    } )
+    .catch( error => console.log( "error caught: ", error ) );
   };
+
+
+  fetchHAndler = () => {
+    fetch( "https://graph.facebook.com/v3.2/" + pageId + "/feed" + "?access_token=" + this.state.pageToken )
+    .then( res => {
+      console.log( "res before parsing: ", res );
+      if ( res.ok ) {
+        return res.json()
+      }
+      else {
+        throw( new Error() );
+      }
+    } )
+    .then( response => {
+      console.log( "success response: ", response );
+    } )
+    .catch( error => console.log( "error caught: ", error ) );
+  }
+
+
 
   shareLinkWithShareDialog( shareLinkContent ) {
     //var tmp = this;
@@ -80,8 +153,15 @@ export default class App extends Component {
 
         <View style = { styles.btnContainer }>
           <Button
-            title = "test"
-            onPress = { this.testHandler }
+            title = "test posting"
+            onPress = { this.postHandler }
+          />
+        </View>
+
+        <View style = { styles.btnContainer }>
+          <Button
+            title = "test fetching"
+            onPress = { this.fetchHAndler }
           />
         </View>
       </View>
