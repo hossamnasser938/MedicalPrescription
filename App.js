@@ -5,7 +5,7 @@ import { LoginManager, AccessToken, ShareDialog } from "react-native-fbsdk";
 
 export default class App extends Component {
   customLoginHandler = () => {
-    LoginManager.logInWithReadPermissions(["public_profile"]).then(
+    LoginManager.logInWithReadPermissions(["public_profile", "user_posts"]).then(
       function(result) {
         console.log( "result: ", result );
         if (result.isCancelled) {
@@ -49,6 +49,7 @@ export default class App extends Component {
       }
     ).then(
       function(result) {
+        console.log( result );
         if (result.isCancelled) {
           console.log('Share cancelled');
         } else {
