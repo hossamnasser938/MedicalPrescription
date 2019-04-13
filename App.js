@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Button} from 'react-native';
 import LoginComponent from './src/components/Login';
-import { LoginManager, AccessToken, ShareDialog } from "react-native-fbsdk";
+import { LoginManager, AccessToken, ShareDialog, ShareApi } from "react-native-fbsdk";
 
 export default class App extends Component {
   customLoginHandler = () => {
-    LoginManager.logInWithReadPermissions(["public_profile", "user_posts"]).then(
+    LoginManager.logInWithReadPermissions(["public_profile"]).then(
       function(result) {
         console.log( "result: ", result );
         if (result.isCancelled) {
@@ -30,13 +30,14 @@ export default class App extends Component {
   }
   
   testHandler = () => {
-    const shareLinkContent = {
-      contentType: 'link',
-      contentUrl: "https://facebook.com",
-      contentDescription: 'Wow, check out this great site!',
+    const photoUrl = "https://mediakey1.ef.com/blog/wp-content/uploads/2017/03/Sea-or-see-12-English-words-that-can-trip-you-up_square-568x400.jpg";
+
+    const sharePhotoContent = {
+      contentType: 'photo',
+      photos: [{ imageUrl: photoUrl }]
     };
 
-    this.shareLinkWithShareDialog( shareLinkContent );
+   this.shareLinkWithShareDialog( sharePhotoContent );
   };
 
   shareLinkWithShareDialog( shareLinkContent ) {
