@@ -94,7 +94,7 @@ export default class App extends Component {
   };
 
 
-  fetchHAndler = () => {
+  fetchPostsHandler = () => {
     fetch( "https://graph.facebook.com/v3.2/" + pageId + "/feed" + "?access_token=" + this.state.pageToken )
     .then( res => {
       console.log( "res before parsing: ", res );
@@ -110,6 +110,28 @@ export default class App extends Component {
     } )
     .catch( error => console.log( "error caught: ", error ) );
   }
+
+
+  fetchPagesHandler = () => {
+    fetch( "https://graph.facebook.com/v3.2/me?fields=id,name,accounts&access_token=" + this.state.userToken )
+    .then( res => {
+      console.log( "res before parsing: ", res );
+      if ( res.ok ) {
+        return res.json()
+      }
+      else {
+        throw( new Error() );
+      }
+    } )
+    .then( response => {
+      console.log( "success response: ", response );
+      // loop through pages returned
+      console.log( "Pages found:" );
+      const pages = response.accounts.data;
+      pages.map( page => console.log( page.name ) );
+    } )
+    .catch( error => console.log( "error caught: ", error ) );
+  };
 
 
 
@@ -160,8 +182,15 @@ export default class App extends Component {
 
         <View style = { styles.btnContainer }>
           <Button
-            title = "test fetching"
-            onPress = { this.fetchHAndler }
+            title = "test fetching posts"
+            onPress = { this.fetchPostsHandler }
+          />
+        </View>
+
+        <View style = { styles.btnContainer }>
+          <Button
+            title = "test fetching pages"
+            onPress = { this.fetchPagesHandler }
           />
         </View>
       </View>
