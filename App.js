@@ -2,10 +2,12 @@ import React, {Component} from 'react';
 import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text} from 'react-native';
 import { LoginButton, LoginManager, AccessToken, ShareDialog } from "react-native-fbsdk";
 import ImagePicker from 'react-native-image-picker';
+import CommentComponent from './src/components/Comment/Comment';
 
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
 
 const pageId = "381560922443107";
+// const postId = "381560922443107_383028292296370";
 
 export default class App extends Component {
   state = {
@@ -13,7 +15,9 @@ export default class App extends Component {
     pageToken: null,
     imagePickedUri: null,
     imagePicked: null,
-    imageUploadedUrl: null
+    imageUploadedUrl: null,
+    postId: null,
+    comments: null
   };
 
 
@@ -141,6 +145,7 @@ export default class App extends Component {
   
 
   postLocalImageToPage = () => {
+    console.log( "start posting" );
     const imageUrl = this.state.imageUploadedUrl;
 
     fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=test" + "&access_token=" + this.state.pageToken, {
@@ -157,6 +162,11 @@ export default class App extends Component {
     } )
     .then( response => {
       console.log( "success response: ", response );
+      const postId = response.post_id;
+      console.log( "Post ID: ", postId );
+      this.setState( {
+        postId: postId
+      } );
     } )
     .catch( error => console.log( "error caught: ", error ) );
   };
@@ -224,8 +234,46 @@ export default class App extends Component {
     .catch( error => console.log( "error caught: ", error ) );
   }
 
+
+  fetchCommentsHandler = () => {
+    console.log( "start fetching posts" );
+    const postId = this.state.postId;
+
+    fetch( "https://graph.facebook.com/v3.2/" + postId + "/comments?" +  "access_token=" + this.state.pageToken )
+    .then( res => {
+      console.log( "res before parsing: ", res );
+      if ( res.ok ) {
+        return res.json()
+      }
+      else {
+        throw( new Error() );
+      }
+    } )
+    .then( response => {
+      console.log( "success response: ", response );
+      const comments = response.data;
+      this.setState( {
+        comments
+      } );
+    } )
+    .catch( error => console.log( "error caught: ", error ) );
+  };
+
   
   render() {
+    let comments = this.state.comments
+      ? (
+        this.state.comments.map( ( comment, index ) => (
+          <CommentComponent
+            key = { index }
+            userImageUrl = { "https://graph.facebook.com/v3.2/" + comment.from.id + "/picture" }
+            userName = { comment.from.name }
+            commentMessage = { comment.message }
+          />
+        ) )
+      )
+      : null;
+
     return (
       <ScrollView contentContainerStyle = { {flexGrow: 1} }>
         <View style={styles.container}>
@@ -291,6 +339,17 @@ export default class App extends Component {
               onPress = { this.imageUploadHandler }
             />
           </View>
+
+          <View style = { styles.btnContainer }>
+            <Button
+              title = "test fetching comments"
+              onPress = { this.fetchCommentsHandler }
+            />
+          </View>
+        </View>
+
+        <View>
+            { comments }
         </View>
       </ScrollView>
     );
