@@ -7,7 +7,9 @@ import CommentComponent from './src/components/Comment/Comment';
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
 
 const pageId = "381560922443107";
-// const postId = "381560922443107_383028292296370";
+const postId = "381560922443107_383028292296370";
+let interval;
+
 
 export default class App extends Component {
   state = {
@@ -20,6 +22,12 @@ export default class App extends Component {
     comments: null
   };
 
+
+  componentWillUnmount() {
+    if ( interval ){
+      clearInterval( interval );
+    }
+  }
 
 
   customLoginHandler = () => {
@@ -237,7 +245,7 @@ export default class App extends Component {
 
   fetchCommentsHandler = () => {
     console.log( "start fetching posts" );
-    const postId = this.state.postId;
+    // const postId = this.state.postId;
 
     fetch( "https://graph.facebook.com/v3.2/" + postId + "/comments?" +  "access_token=" + this.state.pageToken )
     .then( res => {
@@ -257,6 +265,11 @@ export default class App extends Component {
       } );
     } )
     .catch( error => console.log( "error caught: ", error ) );
+  };
+
+
+  observeCommentsHandler = () => {
+    interval = setInterval( this.fetchCommentsHandler, 500 );
   };
 
   
@@ -343,7 +356,7 @@ export default class App extends Component {
           <View style = { styles.btnContainer }>
             <Button
               title = "test fetching comments"
-              onPress = { this.fetchCommentsHandler }
+              onPress = { this.observeCommentsHandler }
             />
           </View>
         </View>
