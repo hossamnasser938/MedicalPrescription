@@ -13,7 +13,7 @@ export default class App extends Component {
     pageToken: null,
     imagePickedUri: null,
     imagePicked: null,
-    imageUploaded: null
+    imageUploadedUrl: null
   };
 
 
@@ -163,8 +163,7 @@ export default class App extends Component {
   
 
   postLocalImageToPage = () => {
-    const imageUrl = this.state.imageUploaded.imageUrl;
-    console.log( "URL found: ", imageUrl );
+    const imageUrl = this.state.imageUploadedUrl;
 
     fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl +  "&access_token=" + this.state.pageToken, {
       method: "POST"
@@ -265,9 +264,9 @@ export default class App extends Component {
     } )
     .then( response => {
       console.log( "success response: ", response );
-      console.log( "", response.imageUrl );
+      
       this.setState( {
-        imageUploaded: response
+        imageUploadedUrl: encodeURIComponent( response.imageUrl )
       } );
     } )
     .catch( error => console.log( "error caught: ", error ) );
