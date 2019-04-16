@@ -143,7 +143,7 @@ export default class App extends Component {
   postLocalImageToPage = () => {
     const imageUrl = this.state.imageUploadedUrl;
 
-    fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl +  "&access_token=" + this.state.pageToken, {
+    fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=test" + "&access_token=" + this.state.pageToken, {
       method: "POST"
     } )
     .then( res => {
