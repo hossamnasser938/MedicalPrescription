@@ -138,28 +138,6 @@ export default class App extends Component {
     .catch( error => console.log( "error caught: ", error ) );
   };
 
-
-  postRemoteImageToPage = () => {
-    const photoURL = "https://mediakey1.ef.com/blog/wp-content/uploads/2017/03/Sea-or-see-12-English-words-that-can-trip-you-up_square-568x400.jpg";
-
-    fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + photoURL +  "&access_token=" + this.state.pageToken, {
-      method: "POST"
-    } )
-    .then( res => {
-      console.log( "res before parsing: ", res );
-      if ( res.ok ) {
-        return res.json()
-      }
-      else {
-        throw( new Error() );
-      }
-    } )
-    .then( response => {
-      console.log( "success response: ", response );
-    } )
-    .catch( error => console.log( "error caught: ", error ) );
-  };
-
   
 
   postLocalImageToPage = () => {
@@ -182,32 +160,6 @@ export default class App extends Component {
     } )
     .catch( error => console.log( "error caught: ", error ) );
   };
-
-
-
-  shareLinkWithShareDialog( shareLinkContent ) {
-    //var tmp = this;
-    ShareDialog.canShow( shareLinkContent ).then(
-      function(canShow) {
-        if (canShow) {
-          return ShareDialog.show( shareLinkContent);
-        }
-      }
-    ).then(
-      function(result) {
-        console.log( result );
-        if (result.isCancelled) {
-          console.log('Share cancelled');
-        } else {
-          console.log('Share success with postId: '
-            + result.postId);
-        }
-      },
-      function(error) {
-        console.log('Share fail with error: ' + error);
-      }
-    );
-  }
 
 
   pickImageHandler = () => {
@@ -323,13 +275,6 @@ export default class App extends Component {
             <Button
               title = "test fetching pages"
               onPress = { this.fetchPagesHandler }
-            />
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test posting a remote image to pages"
-              onPress = { this.postRemoteImageToPage }
             />
           </View>
 
