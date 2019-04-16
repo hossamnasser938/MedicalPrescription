@@ -28,36 +28,6 @@ export default class App extends Component {
       clearInterval( interval );
     }
   }
-
-
-  customLoginHandler = () => {
-    let that = this;
-
-    LoginManager.logInWithPublishPermissions(["manage_pages", "publish_pages"]).then(
-      function(result) {
-        console.log( "result: ", result );
-        if (result.isCancelled) {
-          console.log("Login cancelled");
-        } else {
-          console.log(
-            "Login success with permissions: " +
-              result.grantedPermissions.toString()
-          );
-  
-          AccessToken.getCurrentAccessToken().then(
-            (data) => {
-              let token = data.accessToken.toString();
-              that.getPageToken( token );
-              that.storeUserToken( token );
-            }
-          )
-        }
-      },
-      function(error) {
-        console.log("Login fail with error: " + error);
-      }
-    );
-  }
   
 
 
@@ -88,45 +58,6 @@ export default class App extends Component {
     } );
   }
 
-
-
-  postHandler = () => {
-    console.log( typeof this.state.pageToken );
-    fetch( "https://graph.facebook.com/v3.2/" + pageId + "/feed" + "?message=fromApp&access_token=" + this.state.pageToken, {
-      method: "POST"
-    } )
-    .then( res => {
-      console.log( "res before parsing: ", res );
-      if ( res.ok ) {
-        return res.json()
-      }
-      else {
-        throw( new Error() );
-      }
-    } )
-    .then( response => {
-      console.log( "success response: ", response );
-    } )
-    .catch( error => console.log( "error caught: ", error ) );
-  };
-
-
-  fetchPostsHandler = () => {
-    fetch( "https://graph.facebook.com/v3.2/" + pageId + "/feed" + "?access_token=" + this.state.pageToken )
-    .then( res => {
-      console.log( "res before parsing: ", res );
-      if ( res.ok ) {
-        return res.json()
-      }
-      else {
-        throw( new Error() );
-      }
-    } )
-    .then( response => {
-      console.log( "success response: ", response );
-    } )
-    .catch( error => console.log( "error caught: ", error ) );
-  }
 
 
   fetchPagesHandler = () => {
@@ -305,44 +236,16 @@ export default class App extends Component {
             </View>
           </TouchableOpacity>
 
-        <View>
-          <LoginButton
-            onLoginFinished={ this.onLoginFinishedHandler }
-            onLogoutFinished={() => console.log("logout.")}/>
-        </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "Login using Facebook"
-              onPress = { this.customLoginHandler }
-            />
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test posting"
-              onPress = { this.postHandler }
-            />
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test fetching posts"
-              onPress = { this.fetchPostsHandler }
-            />
+          <View>
+            <LoginButton
+              onLoginFinished={ this.onLoginFinishedHandler }
+              onLogoutFinished={() => console.log("logout.")}/>
           </View>
 
           <View style = { styles.btnContainer }>
             <Button
               title = "test fetching pages"
               onPress = { this.fetchPagesHandler }
-            />
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test posting a locall image to pages"
-              onPress = { this.postLocalImageToPage }
             />
           </View>
 
@@ -355,14 +258,21 @@ export default class App extends Component {
 
           <View style = { styles.btnContainer }>
             <Button
+              title = "test posting a locall image to pages"
+              onPress = { this.postLocalImageToPage }
+            />
+          </View>
+
+          <View style = { styles.btnContainer }>
+            <Button
               title = "test fetching comments"
               onPress = { this.observeCommentsHandler }
             />
           </View>
-        </View>
 
-        <View>
-            { comments }
+          <View>
+              { comments }
+          </View>
         </View>
       </ScrollView>
     );
