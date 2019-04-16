@@ -43,7 +43,7 @@ export default class App extends Component {
             "Login success with permissions: " +
               result.grantedPermissions.toString()
           );
-
+  
           AccessToken.getCurrentAccessToken().then(
             (data) => {
               let token = data.accessToken.toString();
@@ -269,7 +269,7 @@ export default class App extends Component {
 
 
   observeCommentsHandler = () => {
-    interval = setInterval( this.fetchCommentsHandler, 500 );
+    interval = setInterval( this.fetchCommentsHandler, 1000 );
   };
 
   
