@@ -375,6 +375,12 @@ export default class App extends Component {
             } }
           />
 
+          <View>
+            <LoginButton
+              onLoginFinished = { this.onLoginFinishedHandler }
+              onLogoutFinished = { this.onLogoutHandler }/>
+          </View>
+
           <TouchableOpacity onPress = { this.pickImageHandler }>
             <View style = { styles.imageContainer }>
               { this.state.imagePickedUri
@@ -390,19 +396,6 @@ export default class App extends Component {
             </View>
           </TouchableOpacity>
 
-          <View>
-            <LoginButton
-              onLoginFinished = { this.onLoginFinishedHandler }
-              onLogoutFinished = { this.onLogoutHandler }/>
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test fetching pages"
-              onPress = { this.fetchPagesHandler }
-            />
-          </View>
-
           <View style = { styles.btnContainer }>
             <Button
               title = "test uploading image to firebase storage"
@@ -412,15 +405,8 @@ export default class App extends Component {
 
           <View style = { styles.btnContainer }>
             <Button
-              title = "test posting a locall image to pages"
+              title = "test posting image to pages"
               onPress = { this.postImageToPage }
-            />
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test fetching comments"
-              onPress = { this.observeCommentsHandler }
             />
           </View>
 
