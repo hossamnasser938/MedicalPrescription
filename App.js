@@ -18,67 +18,73 @@ const POST_ID_KEY = "POST_ID_KEY";
 
 
 export default class App extends Component {
-  resetState = () => {
-    return this.setState( {
-      userToken: null,
-      pageToken: null,
-      pageId: null,
-      imagePickedUri: null,
-      imagePicked: null,
-      imageUploadedUrl: null,
-      postId: null,
-      comments: null,
-      pages: [],
-      isDialogVisible: false
-    } );
+  resetState = ( callback ) => {
+    return this.setState( 
+      {
+        didLogin: false, 
+        userToken: null,
+        pageToken: null,
+        pageId: null,
+        imagePickedUri: null,
+        imagePicked: null,
+        imageUploadedUrl: null,
+        postId: null,
+        comments: null,
+        pages: [],
+        isDialogVisible: false
+      },
+      callback 
+    );
   };
 
 
   componentWillMount() {
-      this.resetState();
+      this.resetState( () => {
+        AsyncStorage.getItem( USER_TOKEN_KEY )
+          .then( userToken => {
+            if ( userToken !== null && userToken !== "" ){
+              console.log( "Found user access token: ", userToken );
+              this.setState( {
+                userToken
+              } );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting user access token for: ", reason ) );
+      
+          AsyncStorage.getItem( PAGE_TOKEN_KEY )
+          .then( pageToken => {
+            if ( pageToken !== null && pageToken !== "" ){
+              console.log( "Found page access token: ", pageToken );
+              this.setState( {
+                pageToken
+              } );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
 
-      AsyncStorage.getItem( USER_TOKEN_KEY )
-      .then( userToken => {
-        if ( userToken !== null && userToken !== "" ){
-          console.log( "Found user access token: ", userToken );
-          this.setState( {
-            userToken
+          AsyncStorage.getItem( PAGE_ID_KEY )
+          .then( pageId => {
+            if ( pageId !== null && pageId !== "" ){
+              console.log( "Found page id: ", pageId );
+              this.setState( { pageId } );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting page id for: ", reason ) );
+
+          AsyncStorage.getItem( POST_ID_KEY )
+          .then( postId => {
+            if ( postId !== null && postId !== "" ){
+              console.log( "Found post id: ", postId );
+              this.setState( 
+                { postId },
+                this.observeCommentsHandler 
+              );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting post id for: ", reason ) );
           } );
-        }
-      } )
-      .catch( reason => console.log( "Error occured while getting user access token for: ", reason ) );
-  
-      AsyncStorage.getItem( PAGE_TOKEN_KEY )
-      .then( pageToken => {
-        if ( pageToken !== null && pageToken !== "" ){
-          console.log( "Found page access token: ", pageToken );
-          this.setState( {
-            pageToken
-          } );
-        }
-      } )
-      .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
 
-      AsyncStorage.getItem( PAGE_ID_KEY )
-      .then( pageId => {
-        if ( pageId !== null && pageId !== "" ){
-          console.log( "Found page id: ", pageId );
-          this.setState( { pageId } );
-        }
-      } )
-      .catch( reason => console.log( "Error occured while getting page id for: ", reason ) );
-
-      AsyncStorage.getItem( POST_ID_KEY )
-      .then( postId => {
-        if ( postId !== null && postId !== "" ){
-          console.log( "Found post id: ", postId );
-          this.setState( 
-            { postId },
-            this.observeCommentsHandler 
-          );
-        }
-      } )
-      .catch( reason => console.log( "Error occured while getting post id for: ", reason ) );
+          this.updateLoginState();
   }
 
 
@@ -86,6 +92,33 @@ export default class App extends Component {
     if ( interval ){
       clearInterval( interval );
     }
+  }
+
+
+  updateLoginState = () => {
+    AccessToken.getCurrentAccessToken()
+      .then( userToken => {
+        if ( userToken ) {
+          console.log( "user is logged" );
+          this.setState( {
+            didLogin: true,
+            userToken
+          } );
+        } else {
+          console.log( "user is not logged" );
+          this.setState( {
+            didLogin: false,
+            userToken: null
+          } );
+        }
+      } )
+      .catch( reason => {
+        console.log( "Error occured while checking login state for: ", reason );
+        this.setState( {
+          didLogin: false,
+          userToken: null
+        } );
+      } )
   }
 
 
@@ -136,6 +169,8 @@ export default class App extends Component {
 
 
   onLoginFinishedHandler = (error, result) => {
+    this.updateLoginState();
+    
     if ( error ) {
       console.log("login has error: " + result.error);
     } else if ( result.isCancelled ) {
@@ -153,7 +188,7 @@ export default class App extends Component {
 
   onLogoutHandler = () => {
     AsyncStorage.clear();
-    this.resetState();
+    this.resetState( this.updateLoginState );
   };
 
 
