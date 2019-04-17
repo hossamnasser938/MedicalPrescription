@@ -111,6 +111,22 @@ export default class App extends Component {
   };
 
 
+  onLoginFinishedHandler = (error, result) => {
+    if ( error ) {
+      console.log("login has error: " + result.error);
+    } else if ( result.isCancelled ) {
+      console.log("login is cancelled.");
+    } else {
+      AccessToken.getCurrentAccessToken().then(
+        (data) => {
+          let token = data.accessToken.toString();
+          this.fetchPagesHandler( token );
+          this.storeUserToken( token );
+        } )
+    }
+  };
+
+
   fetchPagesHandler = (userToken = false) => {
     const calcUserToken = userToken? userToken: this.state.userToken;
     console.log( "user token from fetchPagesHandler: ", calcUserToken );
@@ -145,35 +161,6 @@ export default class App extends Component {
     .catch( error => console.log( "error caught: ", error ) );
   };
 
-  
-  postLocalImageToPage = () => {
-    console.log( "start posting" );
-    const imageUrl = this.state.imageUploadedUrl;
-    const pageId = this.state.pageId;
-
-    fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=test" + "&access_token=" + this.state.pageToken, {
-      method: "POST"
-    } )
-    .then( res => {
-      console.log( "res before parsing: ", res );
-      if ( res.ok ) {
-        return res.json()
-      }
-      else {
-        throw( new Error() );
-      }
-    } )
-    .then( response => {
-      console.log( "success response: ", response );
-      const postId = response.post_id;
-      console.log( "Post ID: ", postId );
-      this.setState( {
-        postId: postId
-      } );
-    } )
-    .catch( error => console.log( "error caught: ", error ) );
-  };
-
 
   pickImageHandler = () => {
     ImagePicker.showImagePicker( {
@@ -190,22 +177,6 @@ export default class App extends Component {
         } );
       }
     } )
-  };
-
-
-  onLoginFinishedHandler = (error, result) => {
-    if ( error ) {
-      console.log("login has error: " + result.error);
-    } else if ( result.isCancelled ) {
-      console.log("login is cancelled.");
-    } else {
-      AccessToken.getCurrentAccessToken().then(
-        (data) => {
-          let token = data.accessToken.toString();
-          this.fetchPagesHandler( token );
-          this.storeUserToken( token );
-        } )
-    }
   };
 
 
@@ -237,6 +208,35 @@ export default class App extends Component {
       
       this.setState( {
         imageUploadedUrl: encodeURIComponent( response.imageUrl )
+      } );
+    } )
+    .catch( error => console.log( "error caught: ", error ) );
+  };
+
+
+  postImageToPage = () => {
+    console.log( "start posting" );
+    const imageUrl = this.state.imageUploadedUrl;
+    const pageId = this.state.pageId;
+
+    fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=test" + "&access_token=" + this.state.pageToken, {
+      method: "POST"
+    } )
+    .then( res => {
+      console.log( "res before parsing: ", res );
+      if ( res.ok ) {
+        return res.json()
+      }
+      else {
+        throw( new Error() );
+      }
+    } )
+    .then( response => {
+      console.log( "success response: ", response );
+      const postId = response.post_id;
+      console.log( "Post ID: ", postId );
+      this.setState( {
+        postId: postId
       } );
     } )
     .catch( error => console.log( "error caught: ", error ) );
@@ -350,7 +350,7 @@ export default class App extends Component {
           <View style = { styles.btnContainer }>
             <Button
               title = "test posting a locall image to pages"
-              onPress = { this.postLocalImageToPage }
+              onPress = { this.postImageToPage }
             />
           </View>
 
