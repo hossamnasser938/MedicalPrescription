@@ -102,10 +102,15 @@ export default class App extends Component {
 
 
   componentWillUnmount() {
+    this.endFetchingComments();
+  }
+
+
+  endFetchingComments = () => {
     if ( interval ){
       clearInterval( interval );
     }
-  }
+  };
 
 
   updateLoginState = () => {
@@ -210,6 +215,7 @@ export default class App extends Component {
   onLogoutHandler = () => {
     AsyncStorage.clear();
     this.resetState( this.updateLoginState );
+    this.endFetchingComments();
   };
 
 
@@ -250,7 +256,9 @@ export default class App extends Component {
 
   pickImageHandler = () => {
     ImagePicker.showImagePicker( {
-      title: "Pick the image to be shared"
+      title: "Pick the image to be shared",
+      maxWidth: 800,
+      maxHeight: 800
     }, response => {
       if ( response.error ) {
         alert( "Error encountered: ", response.error );
