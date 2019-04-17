@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text, AsyncStorage} from 'react-native';
-import { LoginButton, AccessToken } from "react-native-fbsdk";
+import { LoginButton, AccessToken, LoginManager } from "react-native-fbsdk";
 import ImagePicker from 'react-native-image-picker';
 import { SinglePickerMaterialDialog } from 'react-native-material-dialog';
 import CommentComponent from './src/components/Comment/Comment';
@@ -296,13 +296,21 @@ export default class App extends Component {
             title = "Please Select the Page you want to post to"
             items = { this.state.pages.map( ( item, index ) => ( { value: index, label: item.name, access_token: item.access_token, id: item.id } ) ) }
             visible = { this.state.isDialogVisible }
-            onCancel = { () => this.setState( {isDialogVisible: false} ) }
+            onCancel = { () => { 
+              this.setState( {isDialogVisible: false} );
+              LoginManager.logOut();
+            } }
             onOk = { result => {
               console.log( "selected item: ", result.selectedItem );
-              this.storePageInfo( result.selectedItem );
               this.setState( {
                 isDialogVisible: false
               } );
+              
+              if ( result.selectedItem ){
+                this.storePageInfo( result.selectedItem );
+              } else {
+                LoginManager.logOut();
+              }
             } }
           />
 
