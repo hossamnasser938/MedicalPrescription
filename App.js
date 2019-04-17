@@ -10,7 +10,6 @@ const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.clo
 const postId = "381560922443107_383028292296370";
 let interval;
 
-const testList = ["Page 1", "Page 2", "Page 3"];
 
 const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
 const USER_TOKEN_KEY = "USER_TOKEN_KEY";
@@ -75,7 +74,6 @@ export default class App extends Component {
   }
 
 
-
   storeUserToken = token => {
     this.setState( {
       userToken: token
@@ -83,7 +81,6 @@ export default class App extends Component {
 
     AsyncStorage.setItem( USER_TOKEN_KEY, token );
   };
-
 
 
   storePageToken = token => {
@@ -95,7 +92,6 @@ export default class App extends Component {
   };
 
 
-
   storePageId = pageId => {
     this.setState( {
       pageId
@@ -103,7 +99,6 @@ export default class App extends Component {
 
     AsyncStorage.setItem( PAGE_ID_KEY, pageId );
   };
-
 
 
   storePageInfo = page => {
@@ -114,7 +109,6 @@ export default class App extends Component {
     const pageId = page.id;
     this.storePageId( pageId );
   };
-
 
 
   fetchPagesHandler = (userToken = false) => {
@@ -152,7 +146,6 @@ export default class App extends Component {
   };
 
   
-
   postLocalImageToPage = () => {
     console.log( "start posting" );
     const imageUrl = this.state.imageUploadedUrl;
@@ -218,6 +211,11 @@ export default class App extends Component {
 
   imageUploadHandler = () => {
     console.log( "start uploading" );
+
+    if ( this.state.imagePicked === null ) {
+      alert( "Pick an image to upload" );
+      return;
+    }
 
     fetch( cloudFunctionUrl, {
       method: "POST",
@@ -371,6 +369,7 @@ export default class App extends Component {
     );
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {
