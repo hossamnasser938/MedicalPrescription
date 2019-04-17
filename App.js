@@ -28,16 +28,16 @@ export default class App extends Component {
 
 
   componentWillMount() {
-    AsyncStorage.getItem( PAGE_TOKEN_KEY )
-      .then( pageToken => {
-        if ( pageToken !== null && pageToken !== "" ){
-          console.log( "Found page access token" );
-          this.setState( {
-            pageToken
-          } );
-        }
-      } )
-      .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
+    // AsyncStorage.getItem( PAGE_TOKEN_KEY )
+    //   .then( pageToken => {
+    //     if ( pageToken !== null && pageToken !== "" ){
+    //       console.log( "Found page access token" );
+    //       this.setState( {
+    //         pageToken
+    //       } );
+    //     }
+    //   } )
+    //   .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
 
       AsyncStorage.getItem( USER_TOKEN_KEY )
       .then( userToken => {
@@ -56,19 +56,6 @@ export default class App extends Component {
     if ( interval ){
       clearInterval( interval );
     }
-  }
-  
-
-
-  getPageToken = ( userToken ) => {
-    fetch( "https://graph.facebook.com/" + pageId + "?fields=access_token&access_token=" + userToken )
-        .then( res => res.json() )
-        .then( response => {
-          console.log( "got success: ", response );
-          this.storePageToken( response.access_token.toString() );
-        } ).catch( ( reason ) => {
-          console.log( "failur: ", reason );
-        } );
   }
 
 
@@ -93,8 +80,10 @@ export default class App extends Component {
 
 
 
-  fetchPagesHandler = () => {
-    fetch( "https://graph.facebook.com/v3.2/me?fields=id,name,accounts&access_token=" + this.state.userToken )
+  fetchPagesHandler = (userToken = false) => {
+    const calcUserToken = userToken? userToken: this.state.userToken;
+    console.log( "user token from fetchPagesHandler: ", calcUserToken );
+    fetch( "https://graph.facebook.com/v3.2/me?fields=id,name,accounts&access_token=" + calcUserToken )
     .then( res => {
       console.log( "res before parsing: ", res );
       if ( res.ok ) {
@@ -106,10 +95,18 @@ export default class App extends Component {
     } )
     .then( response => {
       console.log( "success response: ", response );
-      // loop through pages returned
-      console.log( "Pages found:" );
       const pages = response.accounts.data;
-      pages.map( page => console.log( page.name ) );
+      console.log( "Pages found: ", pages );
+      
+
+      if ( pages.length === 0 ) {
+        alert( "You do not have Facebook Pages to post" );
+      } else if ( pages.length === 1 ) {
+        const pageAccessToken = pages[0].access_token;
+        this.storePageToken( pageAccessToken );
+      } else {
+        console.log( "Multiple pages" );
+      }
     } )
     .catch( error => console.log( "error caught: ", error ) );
   };
@@ -171,7 +168,7 @@ export default class App extends Component {
       AccessToken.getCurrentAccessToken().then(
         (data) => {
           let token = data.accessToken.toString();
-          this.getPageToken( token );
+          this.fetchPagesHandler( token );
           this.storeUserToken( token );
         } )
     }
