@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text, AsyncStorage} from 'react-native';
+import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text, ActivityIndicator, AsyncStorage} from 'react-native';
 import { LoginButton, AccessToken, LoginManager } from "react-native-fbsdk";
 import ImagePicker from 'react-native-image-picker';
 import { SinglePickerMaterialDialog } from 'react-native-material-dialog';
@@ -31,7 +31,8 @@ export default class App extends Component {
         postId: null,
         comments: null,
         pages: [],
-        isDialogVisible: false
+        isDialogVisible: false,
+        isLoading: false
       },
       callback 
     );
@@ -330,11 +331,20 @@ export default class App extends Component {
     if ( promise == null ) {
       return;
     }
+    this.setState( {
+      isLoading: true
+    } );
 
     promise.then( imageUrl => {
-      return this.postImageToPage( imageUrl, "test" )
+      this.setState( {
+        isLoading: false
+      } );
+      return this.postImageToPage( imageUrl, "test" );
     } )
     .catch( error => {
+      this.setState( {
+        isLoading: false
+      } );
       alert( "Error occurred while posting your image" );
       console.log( "Error uploading image: ", error );
     } );
@@ -434,10 +444,13 @@ export default class App extends Component {
           </TouchableOpacity>
 
           <View style = { styles.btnContainer }>
-            <Button
-              title = "Post Image"
-              onPress = { this.postImageHandler }
-            />
+            { !this.state.isLoading
+            ? <Button
+                title = "Post Image"
+                onPress = { this.postImageHandler }
+              />
+            : <ActivityIndicator />
+            }
           </View>
 
           <View>
