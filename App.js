@@ -18,21 +18,25 @@ const POST_ID_KEY = "POST_ID_KEY";
 
 
 export default class App extends Component {
-  state = {
-    userToken: null,
-    pageToken: null,
-    pageId: null,
-    imagePickedUri: null,
-    imagePicked: null,
-    imageUploadedUrl: null,
-    postId: null,
-    comments: null,
-    pages: [],
-    isDialogVisible: false
+  resetState = () => {
+    return this.setState( {
+      userToken: null,
+      pageToken: null,
+      pageId: null,
+      imagePickedUri: null,
+      imagePicked: null,
+      imageUploadedUrl: null,
+      postId: null,
+      comments: null,
+      pages: [],
+      isDialogVisible: false
+    } );
   };
 
 
   componentWillMount() {
+      this.resetState();
+
       AsyncStorage.getItem( USER_TOKEN_KEY )
       .then( userToken => {
         if ( userToken !== null && userToken !== "" ){
@@ -144,6 +148,12 @@ export default class App extends Component {
           this.storeUserToken( token );
         } )
     }
+  };
+
+
+  onLogoutHandler = () => {
+    AsyncStorage.clear();
+    this.resetState();
   };
 
 
@@ -347,8 +357,8 @@ export default class App extends Component {
 
           <View>
             <LoginButton
-              onLoginFinished={ this.onLoginFinishedHandler }
-              onLogoutFinished={() => console.log("logout.")}/>
+              onLoginFinished = { this.onLoginFinishedHandler }
+              onLogoutFinished = { this.onLogoutHandler }/>
           </View>
 
           <View style = { styles.btnContainer }>
