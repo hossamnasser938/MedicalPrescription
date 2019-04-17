@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text, AsyncStorage} from 'react-native';
 import { LoginButton, AccessToken } from "react-native-fbsdk";
 import ImagePicker from 'react-native-image-picker';
+import { SinglePickerMaterialDialog } from 'react-native-material-dialog';
 import CommentComponent from './src/components/Comment/Comment';
 
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
@@ -9,6 +10,7 @@ const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.clo
 const postId = "381560922443107_383028292296370";
 let interval;
 
+const testList = ["Page 1", "Page 2", "Page 3"];
 
 const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
 const USER_TOKEN_KEY = "USER_TOKEN_KEY";
@@ -24,7 +26,8 @@ export default class App extends Component {
     imagePicked: null,
     imageUploadedUrl: null,
     postId: null,
-    comments: null
+    comments: null,
+    isDialogVisible: false
   };
 
 
@@ -277,6 +280,24 @@ export default class App extends Component {
     return (
       <ScrollView contentContainerStyle = { {flexGrow: 1} }>
         <View style={styles.container}>
+          <SinglePickerMaterialDialog 
+            title = "Test Dialog"
+            items = { testList.map( ( item, index ) => ( { value: index, label: item } ) ) }
+            visible = { this.state.isDialogVisible }
+            onCancel = { () => this.setState( {isDialogVisible: false} ) }
+            onOk = { result => {
+              console.log( "selected item: ", result.selectedItem );
+              this.setState( {isDialogVisible: false} );
+            } }
+          />
+
+          <View style = { styles.btnContainer }>
+            <Button
+              title = "test dialog"
+              onPress = { () => this.setState( {isDialogVisible: true} ) }
+            />
+          </View>
+
           <TouchableOpacity onPress = { this.pickImageHandler }>
             <View style = { styles.imageContainer }>
               { this.state.imagePickedUri
