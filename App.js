@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text} from 'react-native';
-import { LoginButton, LoginManager, AccessToken, ShareDialog } from "react-native-fbsdk";
+import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text, AsyncStorage} from 'react-native';
+import { LoginButton, AccessToken } from "react-native-fbsdk";
 import ImagePicker from 'react-native-image-picker';
 import CommentComponent from './src/components/Comment/Comment';
 
@@ -9,6 +9,9 @@ const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.clo
 const pageId = "381560922443107";
 const postId = "381560922443107_383028292296370";
 let interval;
+
+
+const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
 
 
 export default class App extends Component {
@@ -21,6 +24,18 @@ export default class App extends Component {
     postId: null,
     comments: null
   };
+
+
+  componentWillMount() {
+    AsyncStorage.getItem( PAGE_TOKEN_KEY )
+      .then( pageToken => {
+        if ( pageToken !== null && pageToken !== "" ){
+          this.setState( {
+            pageToken
+          } );
+        }
+      } );
+  }
 
 
   componentWillUnmount() {
@@ -56,6 +71,8 @@ export default class App extends Component {
     this.setState( {
       pageToken: token
     } );
+
+    AsyncStorage.setItem( PAGE_TOKEN_KEY, token );
   }
 
 
@@ -175,7 +192,7 @@ export default class App extends Component {
 
 
   fetchCommentsHandler = () => {
-    console.log( "start fetching posts" );
+    console.log( "start fetching comments" );
     // const postId = this.state.postId;
 
     fetch( "https://graph.facebook.com/v3.2/" + postId + "/comments?" +  "access_token=" + this.state.pageToken )
