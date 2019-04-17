@@ -6,19 +6,20 @@ import CommentComponent from './src/components/Comment/Comment';
 
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
 
-const pageId = "381560922443107";
 const postId = "381560922443107_383028292296370";
 let interval;
 
 
 const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
 const USER_TOKEN_KEY = "USER_TOKEN_KEY";
+const PAGE_ID_KEY = "PAGE_ID_KEY";
 
 
 export default class App extends Component {
   state = {
     userToken: null,
     pageToken: null,
+    pageId: null,
     imagePickedUri: null,
     imagePicked: null,
     imageUploadedUrl: null,
@@ -28,17 +29,6 @@ export default class App extends Component {
 
 
   componentWillMount() {
-    // AsyncStorage.getItem( PAGE_TOKEN_KEY )
-    //   .then( pageToken => {
-    //     if ( pageToken !== null && pageToken !== "" ){
-    //       console.log( "Found page access token" );
-    //       this.setState( {
-    //         pageToken
-    //       } );
-    //     }
-    //   } )
-    //   .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
-
       AsyncStorage.getItem( USER_TOKEN_KEY )
       .then( userToken => {
         if ( userToken !== null && userToken !== "" ){
@@ -49,6 +39,28 @@ export default class App extends Component {
         }
       } )
       .catch( reason => console.log( "Error occured while getting user access token for: ", reason ) );
+  
+      AsyncStorage.getItem( PAGE_TOKEN_KEY )
+      .then( pageToken => {
+        if ( pageToken !== null && pageToken !== "" ){
+          console.log( "Found page access token" );
+          this.setState( {
+            pageToken
+          } );
+        }
+      } )
+      .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
+
+      AsyncStorage.getItem( PAGE_ID_KEY )
+      .then( pageId => {
+        if ( pageId !== null && pageId !== "" ){
+          console.log( "Found page id" );
+          this.setState( {
+            pageId
+          } );
+        }
+      } )
+      .catch( reason => console.log( "Error occured while getting page id for: ", reason ) );
   }
 
 
@@ -66,7 +78,7 @@ export default class App extends Component {
     } );
 
     AsyncStorage.setItem( USER_TOKEN_KEY, token );
-  }
+  };
 
 
 
@@ -76,7 +88,17 @@ export default class App extends Component {
     } );
 
     AsyncStorage.setItem( PAGE_TOKEN_KEY, token );
-  }
+  };
+
+
+
+  storePageId = pageId => {
+    this.setState( {
+      pageId
+    } );
+
+    AsyncStorage.setItem( PAGE_ID_KEY, pageId );
+  };
 
 
 
@@ -104,6 +126,9 @@ export default class App extends Component {
       } else if ( pages.length === 1 ) {
         const pageAccessToken = pages[0].access_token;
         this.storePageToken( pageAccessToken );
+        
+        const pageId = pages[0].id;
+        this.storePageId( pageId );
       } else {
         console.log( "Multiple pages" );
       }
@@ -116,6 +141,7 @@ export default class App extends Component {
   postLocalImageToPage = () => {
     console.log( "start posting" );
     const imageUrl = this.state.imageUploadedUrl;
+    const pageId = this.state.pageId;
 
     fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=test" + "&access_token=" + this.state.pageToken, {
       method: "POST"
@@ -172,7 +198,7 @@ export default class App extends Component {
           this.storeUserToken( token );
         } )
     }
-  }
+  };
 
 
   imageUploadHandler = () => {
@@ -201,7 +227,7 @@ export default class App extends Component {
       } );
     } )
     .catch( error => console.log( "error caught: ", error ) );
-  }
+  };
 
 
   fetchCommentsHandler = () => {
