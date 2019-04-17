@@ -7,7 +7,6 @@ import CommentComponent from './src/components/Comment/Comment';
 
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
 
-const postId = "381560922443107_383028292296370";
 let interval;
 
 
@@ -18,7 +17,7 @@ const POST_ID_KEY = "POST_ID_KEY";
 
 
 export default class App extends Component {
-  resetState = ( callback ) => {
+  resetState = callback => {
     return this.setState( 
       {
         didLogin: false, 
@@ -160,9 +159,10 @@ export default class App extends Component {
 
 
   storePostId = postId => {
-    this.setState( {
-      postId: postId
-    } );
+    this.setState( 
+      { postId }, 
+      this.observeCommentsHandler 
+    );
 
     AsyncStorage.setItem( POST_ID_KEY, postId );
   };
@@ -308,7 +308,7 @@ export default class App extends Component {
 
   fetchCommentsHandler = () => {
     console.log( "start fetching comments" );
-    // const postId = this.state.postId;
+    const postId = this.state.postId;
 
     fetch( "https://graph.facebook.com/v3.2/" + postId + "/comments?" +  "access_token=" + this.state.pageToken )
     .then( res => {
