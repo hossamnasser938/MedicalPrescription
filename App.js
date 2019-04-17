@@ -14,6 +14,7 @@ const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
 const USER_TOKEN_KEY = "USER_TOKEN_KEY";
 const PAGE_ID_KEY = "PAGE_ID_KEY";
 const POST_ID_KEY = "POST_ID_KEY";
+const IMAGE_URL_KEY = "IMAGE_URL_KEY";
 
 
 export default class App extends Component {
@@ -24,9 +25,9 @@ export default class App extends Component {
         userToken: null,
         pageToken: null,
         pageId: null,
-        imagePickedUri: null,
         imagePicked: null,
         imageUploadedUrl: null,
+        imagePickedUri: null,
         postId: null,
         comments: null,
         pages: [],
@@ -81,9 +82,21 @@ export default class App extends Component {
             }
           } )
           .catch( reason => console.log( "Error occured while getting post id for: ", reason ) );
-          } );
+          
+          AsyncStorage.getItem( IMAGE_URL_KEY )
+          .then( imageUploadedUrl => {
+            if ( imageUploadedUrl !== null && imageUploadedUrl !== "" ){
+              console.log( "Found image url: ", imageUploadedUrl );
+              this.setState( 
+                { imageUploadedUrl },
+                this.observeCommentsHandler 
+              );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting image url for: ", reason ) );
+        } );
 
-          this.updateLoginState();
+        this.updateLoginState();
   }
 
 
@@ -168,6 +181,13 @@ export default class App extends Component {
   };
 
 
+  storeImageUploadedUrl = imageUploadedUrlFirebase => {
+    this.setState( { imageUploadedUrlFirebase } );
+    
+    AsyncStorage.setItem( IMAGE_URL_KEY, imageUploadedUrlFirebase );
+  };
+
+
   onLoginFinishedHandler = (error, result) => {
     this.updateLoginState();
     
@@ -237,23 +257,23 @@ export default class App extends Component {
         console.log ( "user cancelled" );
       } else {
         this.setState ( {
-          imagePickedUri: response.uri,
-          imagePicked: response.data
+          imagePicked: response.data,
+          imagePickedUri: response.uri
         } );
       }
     } )
   };
 
 
-  imageUploadHandler = () => {
+  uploadImageToFirebase = () => {
     console.log( "start uploading" );
 
     if ( this.state.imagePicked === null ) {
       alert( "Pick an image to upload" );
-      return;
+      return null;
     }
 
-    fetch( cloudFunctionUrl, {
+    return fetch( cloudFunctionUrl, {
       method: "POST",
       body: JSON.stringify( {
         image: this.state.imagePicked
@@ -265,26 +285,26 @@ export default class App extends Component {
         return res.json()
       }
       else {
+        console.log("Error uploading image to firebase");
         throw( new Error() );
       }
     } )
     .then( response => {
       console.log( "success response: ", response );
-      
-      this.setState( {
-        imageUploadedUrl: encodeURIComponent( response.imageUrl )
-      } );
-    } )
-    .catch( error => console.log( "error caught: ", error ) );
+
+      const imageUploadedUrlFirebase = response.imageUrl;
+      const imageUploadedUrlFacebook = encodeURIComponent( response.imageUrl );
+      this.storeImageUploadedUrl( imageUploadedUrlFirebase );
+      return imageUploadedUrlFacebook;
+    } );
   };
 
 
-  postImageToPage = () => {
+  postImageToPage = ( imageUrl, caption ) => {
     console.log( "start posting" );
-    const imageUrl = this.state.imageUploadedUrl;
     const pageId = this.state.pageId;
 
-    fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=test" + "&access_token=" + this.state.pageToken, {
+    return fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=" + caption + "&access_token=" + this.state.pageToken, {
       method: "POST"
     } )
     .then( res => {
@@ -302,8 +322,23 @@ export default class App extends Component {
       console.log( "Post ID: ", postId );
       this.storePostId( postId );
     } )
-    .catch( error => console.log( "error caught: ", error ) );
   };
+
+
+  postImageHandler = () => {
+    const promise = this.uploadImageToFirebase();
+    if ( promise == null ) {
+      return;
+    }
+
+    promise.then( imageUrl => {
+      return this.postImageToPage( imageUrl, "test" )
+    } )
+    .catch( error => {
+      alert( "Error occurred while posting your image" );
+      console.log( "Error uploading image: ", error );
+    } );
+  }
 
 
   fetchCommentsHandler = () => {
@@ -383,9 +418,11 @@ export default class App extends Component {
 
           <TouchableOpacity onPress = { this.pickImageHandler }>
             <View style = { styles.imageContainer }>
-              { this.state.imagePickedUri
+              { (this.state.imagePickedUri || this.state.imageUploadedUrl)
                 ? (
-                  <Image style = { styles.image } source = { { uri:  this.state.imagePickedUri } }/>
+                  this.state.imagePickedUri
+                  ? <Image style = { styles.image } source = { { uri: this.state.imagePickedUri } }/>
+                  : <Image style = { styles.image } source = { { uri: this.state.imageUploadedUrl } }/>
                 )
                 : (
                   <Text style = { styles.pickimageText }>
@@ -398,15 +435,8 @@ export default class App extends Component {
 
           <View style = { styles.btnContainer }>
             <Button
-              title = "test uploading image to firebase storage"
-              onPress = { this.imageUploadHandler }
-            />
-          </View>
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test posting image to pages"
-              onPress = { this.postImageToPage }
+              title = "Post Image"
+              onPress = { this.postImageHandler }
             />
           </View>
 
