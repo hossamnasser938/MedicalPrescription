@@ -12,6 +12,7 @@ let interval;
 
 
 const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
+const USER_TOKEN_KEY = "USER_TOKEN_KEY";
 
 
 export default class App extends Component {
@@ -30,11 +31,24 @@ export default class App extends Component {
     AsyncStorage.getItem( PAGE_TOKEN_KEY )
       .then( pageToken => {
         if ( pageToken !== null && pageToken !== "" ){
+          console.log( "Found page access token" );
           this.setState( {
             pageToken
           } );
         }
-      } );
+      } )
+      .catch( reason => console.log( "Error occured while getting page access token for: ", reason ) );
+
+      AsyncStorage.getItem( USER_TOKEN_KEY )
+      .then( userToken => {
+        if ( userToken !== null && userToken !== "" ){
+          console.log( "Found user access token" );
+          this.setState( {
+            userToken
+          } );
+        }
+      } )
+      .catch( reason => console.log( "Error occured while getting user access token for: ", reason ) );
   }
 
 
@@ -63,6 +77,8 @@ export default class App extends Component {
     this.setState( {
       userToken: token
     } );
+
+    AsyncStorage.setItem( USER_TOKEN_KEY, token );
   }
 
 
@@ -147,9 +163,9 @@ export default class App extends Component {
 
 
   onLoginFinishedHandler = (error, result) => {
-    if (error) {
+    if ( error ) {
       console.log("login has error: " + result.error);
-    } else if (result.isCancelled) {
+    } else if ( result.isCancelled ) {
       console.log("login is cancelled.");
     } else {
       AccessToken.getCurrentAccessToken().then(
