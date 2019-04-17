@@ -14,6 +14,7 @@ let interval;
 const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
 const USER_TOKEN_KEY = "USER_TOKEN_KEY";
 const PAGE_ID_KEY = "PAGE_ID_KEY";
+const POST_ID_KEY = "POST_ID_KEY";
 
 
 export default class App extends Component {
@@ -58,12 +59,22 @@ export default class App extends Component {
       .then( pageId => {
         if ( pageId !== null && pageId !== "" ){
           console.log( "Found page id: ", pageId );
-          this.setState( {
-            pageId
-          } );
+          this.setState( { pageId } );
         }
       } )
       .catch( reason => console.log( "Error occured while getting page id for: ", reason ) );
+
+      AsyncStorage.getItem( POST_ID_KEY )
+      .then( postId => {
+        if ( postId !== null && postId !== "" ){
+          console.log( "Found post id: ", postId );
+          this.setState( 
+            { postId },
+            this.observeCommentsHandler 
+          );
+        }
+      } )
+      .catch( reason => console.log( "Error occured while getting post id for: ", reason ) );
   }
 
 
@@ -108,6 +119,15 @@ export default class App extends Component {
     
     const pageId = page.id;
     this.storePageId( pageId );
+  };
+
+
+  storePostId = postId => {
+    this.setState( {
+      postId: postId
+    } );
+
+    AsyncStorage.setItem( POST_ID_KEY, postId );
   };
 
 
@@ -235,9 +255,7 @@ export default class App extends Component {
       console.log( "success response: ", response );
       const postId = response.post_id;
       console.log( "Post ID: ", postId );
-      this.setState( {
-        postId: postId
-      } );
+      this.storePostId( postId );
     } )
     .catch( error => console.log( "error caught: ", error ) );
   };
