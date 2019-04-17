@@ -27,6 +27,7 @@ export default class App extends Component {
     imageUploadedUrl: null,
     postId: null,
     comments: null,
+    pages: [],
     isDialogVisible: false
   };
 
@@ -35,7 +36,7 @@ export default class App extends Component {
       AsyncStorage.getItem( USER_TOKEN_KEY )
       .then( userToken => {
         if ( userToken !== null && userToken !== "" ){
-          console.log( "Found user access token" );
+          console.log( "Found user access token: ", userToken );
           this.setState( {
             userToken
           } );
@@ -46,7 +47,7 @@ export default class App extends Component {
       AsyncStorage.getItem( PAGE_TOKEN_KEY )
       .then( pageToken => {
         if ( pageToken !== null && pageToken !== "" ){
-          console.log( "Found page access token" );
+          console.log( "Found page access token: ", pageToken );
           this.setState( {
             pageToken
           } );
@@ -57,7 +58,7 @@ export default class App extends Component {
       AsyncStorage.getItem( PAGE_ID_KEY )
       .then( pageId => {
         if ( pageId !== null && pageId !== "" ){
-          console.log( "Found page id" );
+          console.log( "Found page id: ", pageId );
           this.setState( {
             pageId
           } );
@@ -105,6 +106,17 @@ export default class App extends Component {
 
 
 
+  storePageInfo = page => {
+    console.log( "page from storePageInfo: ", page );
+    const pageAccessToken = page.access_token;
+    this.storePageToken( pageAccessToken );
+    
+    const pageId = page.id;
+    this.storePageId( pageId );
+  };
+
+
+
   fetchPagesHandler = (userToken = false) => {
     const calcUserToken = userToken? userToken: this.state.userToken;
     console.log( "user token from fetchPagesHandler: ", calcUserToken );
@@ -122,18 +134,18 @@ export default class App extends Component {
       console.log( "success response: ", response );
       const pages = response.accounts.data;
       console.log( "Pages found: ", pages );
-      
-
+    
       if ( pages.length === 0 ) {
         alert( "You do not have Facebook Pages to post" );
+        // TODO: handle
       } else if ( pages.length === 1 ) {
-        const pageAccessToken = pages[0].access_token;
-        this.storePageToken( pageAccessToken );
-        
-        const pageId = pages[0].id;
-        this.storePageId( pageId );
+        this.storePageInfo( pages[0] );
       } else {
         console.log( "Multiple pages" );
+        this.setState( 
+          { pages }, 
+          () => this.setState( { isDialogVisible: true } )
+        );
       }
     } )
     .catch( error => console.log( "error caught: ", error ) );
@@ -281,22 +293,18 @@ export default class App extends Component {
       <ScrollView contentContainerStyle = { {flexGrow: 1} }>
         <View style={styles.container}>
           <SinglePickerMaterialDialog 
-            title = "Test Dialog"
-            items = { testList.map( ( item, index ) => ( { value: index, label: item } ) ) }
+            title = "Please Select the Page you want to post to"
+            items = { this.state.pages.map( ( item, index ) => ( { value: index, label: item.name, access_token: item.access_token, id: item.id } ) ) }
             visible = { this.state.isDialogVisible }
             onCancel = { () => this.setState( {isDialogVisible: false} ) }
             onOk = { result => {
               console.log( "selected item: ", result.selectedItem );
-              this.setState( {isDialogVisible: false} );
+              this.storePageInfo( result.selectedItem );
+              this.setState( {
+                isDialogVisible: false
+              } );
             } }
           />
-
-          <View style = { styles.btnContainer }>
-            <Button
-              title = "test dialog"
-              onPress = { () => this.setState( {isDialogVisible: true} ) }
-            />
-          </View>
 
           <TouchableOpacity onPress = { this.pickImageHandler }>
             <View style = { styles.imageContainer }>
