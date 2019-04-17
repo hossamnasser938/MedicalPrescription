@@ -332,7 +332,7 @@ export default class App extends Component {
 
 
   observeCommentsHandler = () => {
-    interval = setInterval( this.fetchCommentsHandler, 1000 );
+    interval = setInterval( this.fetchCommentsHandler, 3000 );
   };
 
   
