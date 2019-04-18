@@ -1,20 +1,15 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, ScrollView, TouchableOpacity, Image, Button, Text, ActivityIndicator, AsyncStorage} from 'react-native';
-import { LoginButton, AccessToken, LoginManager } from "react-native-fbsdk";
+import React, { Component } from 'react';
+import { AsyncStorage } from 'react-native';
+import { LoginManager, AccessToken } from "react-native-fbsdk";
 import ImagePicker from 'react-native-image-picker';
-import { SinglePickerMaterialDialog } from 'react-native-material-dialog';
 import CommentComponent from './src/components/Comment/Comment';
+import LoginComponent from './src/components/Login/Login';
+import SharePostComponent from './src/components/SharePost/SharePost';
+import { PAGE_TOKEN_KEY, USER_TOKEN_KEY, PAGE_ID_KEY, POST_ID_KEY, IMAGE_URL_KEY } from './src/utils/Constants';
 
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
 
 let interval;
-
-
-const PAGE_TOKEN_KEY = "PAGE_TOKEN_KEY";
-const USER_TOKEN_KEY = "USER_TOKEN_KEY";
-const PAGE_ID_KEY = "PAGE_ID_KEY";
-const POST_ID_KEY = "POST_ID_KEY";
-const IMAGE_URL_KEY = "IMAGE_URL_KEY";
 
 
 export default class App extends Component {
@@ -388,6 +383,26 @@ export default class App extends Component {
     interval = setInterval( this.fetchCommentsHandler, 3000 );
   };
 
+
+  dialogOnOk = result => {
+    console.log( "selected item: ", result.selectedItem );
+    this.setState( {
+      isDialogVisible: false
+    } );
+    
+    if ( result.selectedItem ){
+      this.storePageInfo( result.selectedItem );
+    } else {
+      LoginManager.logOut();
+    }
+  }
+
+
+  dialogOnCancel = () => { 
+    this.setState( { isDialogVisible: false } );
+    LoginManager.logOut();
+  }
+
   
   render() {
     let comments = this.state.comments
@@ -404,97 +419,27 @@ export default class App extends Component {
       : null;
 
     return (
-      <ScrollView contentContainerStyle = { {flexGrow: 1} }>
-        <View style={styles.container}>
-          <SinglePickerMaterialDialog 
-            title = "Please Select the Page you want to post to"
-            items = { this.state.pages.map( ( item, index ) => ( { value: index, label: item.name, access_token: item.access_token, id: item.id } ) ) }
-            visible = { this.state.isDialogVisible }
-            onCancel = { () => { 
-              this.setState( {isDialogVisible: false} );
-              LoginManager.logOut();
-            } }
-            onOk = { result => {
-              console.log( "selected item: ", result.selectedItem );
-              this.setState( {
-                isDialogVisible: false
-              } );
-              
-              if ( result.selectedItem ){
-                this.storePageInfo( result.selectedItem );
-              } else {
-                LoginManager.logOut();
-              }
-            } }
-          />
-
-          <View>
-            <LoginButton
-              onLoginFinished = { this.onLoginFinishedHandler }
-              onLogoutFinished = { this.onLogoutHandler }/>
-          </View>
-
-          <TouchableOpacity onPress = { this.pickImageHandler }>
-            <View style = { styles.imageContainer }>
-              { (this.state.imagePickedUri || this.state.imageUploadedUrl)
-                ? (
-                  this.state.imagePickedUri
-                  ? <Image style = { styles.image } source = { { uri: this.state.imagePickedUri } }/>
-                  : <Image style = { styles.image } source = { { uri: this.state.imageUploadedUrl } }/>
-                )
-                : (
-                  <Text style = { styles.pickimageText }>
-                    Pick Image
-                  </Text>
-                ) 
-              }
-            </View>
-          </TouchableOpacity>
-
-          <View style = { styles.btnContainer }>
-            { !this.state.isLoading
-            ? <Button
-                title = "Post Image"
-                onPress = { this.postImageHandler }
-              />
-            : <ActivityIndicator />
-            }
-          </View>
-
-          <View>
-              { comments }
-          </View>
-        </View>
-      </ScrollView>
+      this.state.didLogin
+      ? <SharePostComponent
+          pages = { this.state.pages }
+          isDialogVisible = { this.state.isDialogVisible }
+          imagePickedUri = { this.state.imagePickedUri }
+          imageUploadedUrl = { this.state.imageUploadedUrl }
+          isLoading = { this.state.isLoading }
+          storePageInfo = { this.storePageInfo }
+          pickImageHandler = { this.pickImageHandler }
+          postImageHandler = { this.postImageHandler }
+          onLoginFinishedHandler = { this.onLoginFinishedHandler }
+          onLogoutHandler = { this.onLogoutHandler }
+          comments = { comments }
+          dialogOnOk = { this.dialogOnOk }
+          dialogOnCancel = { this.dialogOnCancel }
+        />
+      : <LoginComponent 
+          onLoginFinishedHandler = { this.onLoginFinishedHandler }
+          onLogoutHandler = { this.onLogoutHandler }  
+        />
+        
     );
   }
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  imageContainer:{
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 10,
-    width: 200,
-    height: 200,
-    borderWidth: 2,
-    borderColor: "black"
-  },  
-  image: {
-    width: 200,
-    height: 200,
-  },
-  pickimageText: {
-    textAlign: "center"
-  },  
-  btnContainer: {
-    margin: 16
-  }
-});
