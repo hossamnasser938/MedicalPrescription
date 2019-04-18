@@ -3,13 +3,14 @@ import { WHITE_C } from '../../utils/Colors';
 
 const styles = StyleSheet.create( {
     container: {
-        width: "80%",
+        width: "100%",
         flexDirection: "row",
         backgroundColor: WHITE_C,
         borderColor: WHITE_C,
         borderWidth: 1,
         borderRadius: 5,
-        margin: 8
+        marginTop: 8,
+        marginBottom: 8
     },
     imageContainer: {
         justifyContent: "center",

@@ -11,7 +11,7 @@ const PostCaption = props => (
         </View>
 
         <TextInput 
-            style = { styles.TextInput }
+            style = { styles.textInput }
             placeholder = "Post Text"
             value = { props.postText }
             onChangeText = { props.onChangePostText }

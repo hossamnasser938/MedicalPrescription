@@ -18,10 +18,12 @@ const SharePost = props => (
             onOk = { props.dialogOnOk }
           />
 
-          <PostCaptionComponent 
-            postText = { props.postText }
-            onChangePostText = { props.onChangePostText }
-          />
+          <View style = { { width: "80%" } }>
+            <PostCaptionComponent 
+              postText = { props.postText }
+              onChangePostText = { props.onChangePostText }
+            />
+          </View>
 
           <PickImageComponent 
             pickImageHandler = { props.pickImageHandler }
