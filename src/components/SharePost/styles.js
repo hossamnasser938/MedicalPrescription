@@ -10,6 +10,9 @@ const styles = StyleSheet.create( {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: LOWER_BACKGROUND_C
+    },
+    btnContainer: {
+        width: "80%"
     }
 } );
 

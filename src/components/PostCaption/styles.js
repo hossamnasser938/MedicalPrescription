@@ -6,6 +6,9 @@ const styles = StyleSheet.create( {
         width: "80%",
         flexDirection: "row",
         backgroundColor: WHITE_C,
+        borderColor: WHITE_C,
+        borderWidth: 1,
+        borderRadius: 5,
         margin: 8
     },
     imageContainer: {
