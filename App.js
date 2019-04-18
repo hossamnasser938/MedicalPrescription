@@ -5,17 +5,18 @@ import ImagePicker from 'react-native-image-picker';
 import CommentComponent from './src/components/Comment/Comment';
 import LoginComponent from './src/components/Login/Login';
 import SharePostComponent from './src/components/SharePost/SharePost';
-import { PAGE_TOKEN_KEY, USER_TOKEN_KEY, PAGE_ID_KEY, POST_ID_KEY, IMAGE_URL_KEY } from './src/utils/Constants';
+import DisplayPostComponent from './src/components/DisplayPost/DisplayPost';
+import { PAGE_TOKEN_KEY, USER_TOKEN_KEY, PAGE_ID_KEY, POST_ID_KEY, IMAGE_URL_KEY, POST_TEXT_KEY, MODE_KEY } from './src/utils/Constants';
 
 const cloudFunctionUrl = "https://us-central1-rn-course-practi-1553685361491.cloudfunctions.net/uploadImage";
 
 let interval;
 
-
 export default class App extends Component {
   resetState = callback => {
     return this.setState( 
       {
+        mode: "",
         didLogin: false, 
         userToken: null,
         pageToken: null,
@@ -85,12 +86,33 @@ export default class App extends Component {
             if ( imageUploadedUrl !== null && imageUploadedUrl !== "" ){
               console.log( "Found image url: ", imageUploadedUrl );
               this.setState( 
-                { imageUploadedUrl },
-                this.observeCommentsHandler 
+                { imageUploadedUrl }
               );
             }
           } )
           .catch( reason => console.log( "Error occured while getting image url for: ", reason ) );
+
+          AsyncStorage.getItem( POST_TEXT_KEY )
+          .then( postText => {
+            if ( postText !== null && postText !== "" ){
+              console.log( "Found image url: ", postText );
+              this.setState( 
+                { postText }
+              );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting post text for: ", reason ) );
+
+          AsyncStorage.getItem( MODE_KEY )
+          .then( mode => {
+            if ( mode !== null && mode !== "" ){
+              console.log( "Found mode : ", mode );
+              this.setState( 
+                { mode }
+              );
+            }
+          } )
+          .catch( reason => console.log( "Error occured while getting mode for: ", reason ) );
         } );
 
         this.updateLoginState();
@@ -103,11 +125,19 @@ export default class App extends Component {
 
 
   onChangePostText = val => {
-    console.log( val );
     this.setState( {
       postText: val
     } );
   }
+
+
+  updateModeHandler = mode => {
+    this.setState( {
+      mode
+    } );
+
+    AsyncStorage.setItem( MODE_KEY, mode );
+  };
 
 
   endFetchingComments = () => {
@@ -198,6 +228,11 @@ export default class App extends Component {
   };
 
 
+  storePostText = () => {
+    AsyncStorage.setItem( POST_TEXT_KEY, this.state.postText );
+  };
+
+
   onLoginFinishedHandler = (error, result) => {
     this.updateLoginState();
     
@@ -211,6 +246,8 @@ export default class App extends Component {
           let token = data.accessToken.toString();
           this.fetchPagesHandler( token );
           this.storeUserToken( token );
+
+          this.updateModeHandler( "posting" );
         } )
     }
   };
@@ -334,6 +371,14 @@ export default class App extends Component {
       const postId = response.post_id;
       console.log( "Post ID: ", postId );
       this.storePostId( postId );
+
+      this.setState( {
+        isLoading: false
+      } );
+
+      this.storePostText();
+
+      this.updateModeHandler( "posted" );
     } )
   };
 
@@ -348,9 +393,6 @@ export default class App extends Component {
     } );
 
     promise.then( imageUrl => {
-      this.setState( {
-        isLoading: false
-      } );
       return this.postImageToPage( imageUrl );
     } )
     .catch( error => {
@@ -427,30 +469,51 @@ export default class App extends Component {
       )
       : null;
 
-    return (
-      this.state.didLogin
-      ? <SharePostComponent
-          pages = { this.state.pages }
-          isDialogVisible = { this.state.isDialogVisible }
-          imagePickedUri = { this.state.imagePickedUri }
-          imageUploadedUrl = { this.state.imageUploadedUrl }
-          isLoading = { this.state.isLoading }
-          storePageInfo = { this.storePageInfo }
-          pickImageHandler = { this.pickImageHandler }
-          postImageHandler = { this.postImageHandler }
-          onLoginFinishedHandler = { this.onLoginFinishedHandler }
-          onLogoutHandler = { this.onLogoutHandler }
-          comments = { comments }
-          dialogOnOk = { this.dialogOnOk }
-          dialogOnCancel = { this.dialogOnCancel }
-          postText = { this.state.postText }
-          onChangePostText = { this.onChangePostText }
-        />
-      : <LoginComponent 
+    let content;
+    if ( !this.state.didLogin ) {
+      console.log( "login screen" );
+      content = (
+        <LoginComponent 
           onLoginFinishedHandler = { this.onLoginFinishedHandler }
           onLogoutHandler = { this.onLogoutHandler }  
         />
-        
-    );
+      );
+    } else if ( this.state.mode === "posted" ) {
+      console.log( "posted screen" );
+      content = (
+        <DisplayPostComponent
+          postText = { this.state.postText }
+          imageUri = { this.state.imagePickedUri }
+          imageUrl = { this.state.imageUploadedUrl }
+          comments = { comments } 
+          onLoginFinished = { this.onLoginFinishedHandler }
+          onLogoutFinished = { this.onLogoutHandler }
+          updateModeHandler = { this.updateModeHandler }
+        />
+      );
+    } else {
+      console.log( "posting screen" );
+      content = (
+        <SharePostComponent
+            pages = { this.state.pages }
+            isDialogVisible = { this.state.isDialogVisible }
+            imagePickedUri = { this.state.imagePickedUri }
+            imageUploadedUrl = { this.state.imageUploadedUrl }
+            isLoading = { this.state.isLoading }
+            storePageInfo = { this.storePageInfo }
+            pickImageHandler = { this.pickImageHandler }
+            postImageHandler = { this.postImageHandler }
+            onssLoginFinishedHandler = { this.onLoginFinishedHandler }
+            onLogoutHandler = { this.onLogoutHandler }
+            dialogOnOk = { this.dialogOnOk }
+            dialogOnCancel = { this.dialogOnCancel }
+            postText = { this.state.postText }
+            onChangePostText = { this.onChangePostText }
+            storePostText = { this.storePostText }
+          />
+      );
+    }
+
+    return ( content );
   }
 }

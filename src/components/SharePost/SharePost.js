@@ -49,10 +49,6 @@ const SharePost = props => (
             </View>
           : null  
           }
-
-          <View>
-              { props.comments }
-          </View>
         </View>
       </ScrollView>
 );
