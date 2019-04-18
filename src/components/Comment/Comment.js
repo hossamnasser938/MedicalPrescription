@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Image } from 'react-native';
+import styles from './styles';
 
 const Comment = props => (
     <View style = { styles.container }>
@@ -8,25 +9,11 @@ const Comment = props => (
           source = { { uri: props.userImageUrl } }
         />
 
-        <View >
-            <Text>{ props.userName }</Text>
-            <Text>{ props.commentMessage }</Text>
+        <View style = { styles.textsWrapper }>
+            <Text style = { styles.userNameText }>{ props.userName }</Text>
+            <Text style = { styles.commentText }>{ props.commentMessage }</Text>
         </View>
     </View>
 );
-
-const styles = StyleSheet.create( {
-    container: {
-        width: "80%",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        margin: 5
-    },
-    image: {
-        width: 100,
-        height: 100
-    }
-} );
 
 export default Comment;
