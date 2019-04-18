@@ -27,7 +27,8 @@ export default class App extends Component {
         comments: null,
         pages: [],
         isDialogVisible: false,
-        isLoading: false
+        isLoading: false,
+        postText: ""
       },
       callback 
     );
@@ -98,6 +99,14 @@ export default class App extends Component {
 
   componentWillUnmount() {
     this.endFetchingComments();
+  }
+
+
+  onChangePostText = val => {
+    console.log( val );
+    this.setState( {
+      postText: val
+    } );
   }
 
 
@@ -304,11 +313,11 @@ export default class App extends Component {
   };
 
 
-  postImageToPage = ( imageUrl, caption ) => {
+  postImageToPage = ( imageUrl ) => {
     console.log( "start posting" );
     const pageId = this.state.pageId;
 
-    return fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=" + caption + "&access_token=" + this.state.pageToken, {
+    return fetch( "https://graph.facebook.com/" + pageId + "/photos?url=" + imageUrl + "&caption=" + this.state.postText + "&access_token=" + this.state.pageToken, {
       method: "POST"
     } )
     .then( res => {
@@ -342,7 +351,7 @@ export default class App extends Component {
       this.setState( {
         isLoading: false
       } );
-      return this.postImageToPage( imageUrl, "test" );
+      return this.postImageToPage( imageUrl );
     } )
     .catch( error => {
       this.setState( {
@@ -434,6 +443,8 @@ export default class App extends Component {
           comments = { comments }
           dialogOnOk = { this.dialogOnOk }
           dialogOnCancel = { this.dialogOnCancel }
+          postText = { this.state.postText }
+          onChangePostText = { this.onChangePostText }
         />
       : <LoginComponent 
           onLoginFinishedHandler = { this.onLoginFinishedHandler }
