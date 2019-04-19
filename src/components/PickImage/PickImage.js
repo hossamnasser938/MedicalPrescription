@@ -13,7 +13,7 @@ const PickImage = props => (
             )
             : (
                 <Image 
-                source = { require( "../../../assets/camera.png" ) }
+                source = { require( "../../../assets/take_photo.png" ) }
                 />
             ) 
             }

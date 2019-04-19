@@ -7,7 +7,7 @@ const Login = props => (
     <View style = { styles.container }>
         <View style = { styles.wrapper }>
             <Image 
-                source = { require( "../../../assets/prescription.png" ) }
+                source = { require( "../../../assets/medical_prescription.png" ) }
             />
         </View>
 
