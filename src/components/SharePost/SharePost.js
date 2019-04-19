@@ -44,6 +44,7 @@ const SharePost = props => (
           { !props.isLoading
           ? <View>
               <LoginButton
+                publishPermissions = { ["manage_pages", "publish_pages"] }
                 onLoginFinished = { props.onLoginFinishedHandler }
                 onLogoutFinished = { props.onLogoutHandler }/>
             </View>

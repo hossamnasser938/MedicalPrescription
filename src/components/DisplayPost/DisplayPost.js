@@ -36,6 +36,7 @@ const DisplayPost = props => {
 
                 <View style = { styles.btnContainer }>
                     <LoginButton
+                        publishPermissions = { ["manage_pages", "publish_pages"] }
                         onLoginFinished = { props.onLoginFinished }
                         onLogoutFinished = { props.onLogoutFinished }
                     />
