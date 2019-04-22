@@ -1,4 +1,4 @@
-package com.medicalprescription;
+package com.prescription.medical.hos.eng;
 
 import android.app.Application;
 
