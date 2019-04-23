@@ -1,7 +1,5 @@
 import React from 'react';
 import { ScrollView, View, ActivityIndicator } from 'react-native';
-import { LoginButton } from 'react-native-fbsdk';
-import { SinglePickerMaterialDialog } from 'react-native-material-dialog';
 import PickImageComponent from '../PickImage/PickImage';
 import DefaultButton from '../DefaultButton/DefaultButton';
 import PostCaptionComponent from '../PostCaption/PostCaption';
@@ -10,14 +8,6 @@ import styles from './styles';
 const SharePost = props => (
     <ScrollView contentContainerStyle = { styles.outerContainer }>
         <View style = { styles.container }>
-          <SinglePickerMaterialDialog 
-            title = "Please Select the Page you want to post to"
-            items = { props.pages.map( ( item, index ) => ( { value: index, label: item.name, access_token: item.access_token, id: item.id } ) ) }
-            visible = { props.isDialogVisible }
-            onCancel = { props.dialogOnCancel }
-            onOk = { props.dialogOnOk }
-          />
-
           <View style = { { width: "80%" } }>
             <PostCaptionComponent 
               postText = { props.postText }
@@ -34,22 +24,12 @@ const SharePost = props => (
           <View style = { styles.btnContainer }>
             { !props.isLoading
             ? <DefaultButton
-                title = "Post Image"
-                onPress = { props.postImageHandler }
+                title = "Upload Image"
+                onPress = { props.uploadImageHandler }
               />
             : <ActivityIndicator />
             }
           </View>
-
-          { !props.isLoading
-          ? <View>
-              <LoginButton
-                publishPermissions = { ["manage_pages", "publish_pages"] }
-                onLoginFinished = { props.onLoginFinishedHandler }
-                onLogoutFinished = { props.onLogoutHandler }/>
-            </View>
-          : null  
-          }
         </View>
       </ScrollView>
 );

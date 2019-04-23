@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, ScrollView, Text, Image } from 'react-native';
-import { LoginButton } from 'react-native-fbsdk';
 import DefaultButton from '../DefaultButton/DefaultButton';
 import styles from './styles';
 
@@ -10,8 +9,8 @@ const DisplayPost = props => {
         <ScrollView contentContainerStyle = { styles.outerContainer }>
             <View style = { styles.container }>
                 <DefaultButton
-                title = "Post a new image" 
-                onPress = { () => { props.updateModeHandler( "posting" ) } }
+                  title = "Upload a new image" 
+                  onPress = { () => { props.updateModeHandler( "posting" ) } }
                 />
 
                 { props.postText !== null && props.postText !== ""
@@ -33,14 +32,6 @@ const DisplayPost = props => {
                 <Text style = { styles.text }>Comments will appear here</Text>
 
                 { props.comments }
-
-                <View style = { styles.btnContainer }>
-                    <LoginButton
-                        publishPermissions = { ["manage_pages", "publish_pages"] }
-                        onLoginFinished = { props.onLoginFinished }
-                        onLogoutFinished = { props.onLogoutFinished }
-                    />
-                </View>
             </View>
         </ScrollView>
     );
