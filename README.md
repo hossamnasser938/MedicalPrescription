@@ -16,9 +16,9 @@ A package that provides a custom dialog for you.
 A package that provides thousands of icons for your app.
 
 ## ScreenShots
-* ![1](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/1.png)
-* ![2](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/2.png)
-* ![3](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/3.png)
-* ![4](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/4.png)
-* ![5](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/5.png)
-* ![6](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/6.png)
+* ![](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/1.png)
+* ![](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/2.png)
+* ![](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/3.png)
+* ![](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/4.png)
+* ![](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/5.png)
+* ![](https://github.com/hossamnasser938/MedicalPrescription/tree/master/screenshots/6.png)
