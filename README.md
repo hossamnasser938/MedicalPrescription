@@ -1,5 +1,11 @@
 # MedicalPrescription
 
+## Table of Contents
+* [Overview](#Overview)
+* [ToolsUsed](#ToolsUsed)
+* [Release](#Release)
+* [Screenshots](#Screenshots)
+
 ## Overview
 **MedicalPrescription** is a very small app that is intended to be integrated in another big one. **MedicalPrescription** is intended to be used as a screen in an app that serves pharmacists. It helps pushing a photo of a medical prescription to a public facebook page and then listens on comments on this post. It does that by employing the facebook Api.
 
@@ -14,6 +20,9 @@ A *native* package that facilitates accessing the camera and the gallery to grab
 A package that provides a custom dialog for you.
 * [` react-native-vector-icons `](https://www.npmjs.com/package/react-native-vector-icons)  
 A package that provides thousands of icons for your app.
+
+## Release
+The application has been released to the Google App Store and can be found [here](https://play.google.com/store/apps/details?id=com.prescription.medical.hos.eng).
 
 ## ScreenShots
 * ![](https://github.com/hossamnasser938/MedicalPrescription/blob/master/screenshots/1.png)
